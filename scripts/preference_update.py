@@ -146,7 +146,7 @@ def generate_preferred_language(user):
     languages = GeneralTable.objects.filter(type='language').values_list('name', flat=True)
 
     # If the user has a language preference, we can prioritize that, else choose randomly from the list
-    preferred_language = user.profile.language if hasattr(user, 'profile') and user.profile.language else random.choice(languages)
+    preferred_language = user.profile.mother_tongue if hasattr(user, 'profile') and user.profile.mother_tongue else random.choice(languages)
 
     return preferred_language
 

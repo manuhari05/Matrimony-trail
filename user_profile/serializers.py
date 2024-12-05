@@ -11,8 +11,8 @@ These serializer is used for the profile model
 
 class ProfileSerializer(serializers.ModelSerializer):
     profile_image = serializers.SerializerMethodField()
-    email = serializers.EmailField(source='user.email')
-    phone_number = serializers.CharField(source='user.phone_number')
+    # email = serializers.EmailField(source='user.email')
+    # phone_number = serializers.CharField(source='user.phone_number')
 
 
     class Meta:

@@ -77,7 +77,7 @@ class User(AbstractUser):
 
             if age < 18 or age > 55:
                 raise ValidationError("Only users between the age of 18 and 55 are allowed to create an account.")
-        print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>{self.role}")  
+        # print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>{self.role}")  
         if self.role and self.role.role == 'Admin':
             self.is_superuser = True
             self.is_staff = True

@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import Preference
 from .serializers import PreferenceSerializer
-
+from notification.models import Notification
 '''
 These PreferenceListCreateView and PreferenceUpdateView are used to get the list of all preferences and create a new preference.
 
@@ -25,6 +25,10 @@ class PreferenceListCreateView(generics.ListCreateAPIView):
         Automatically associate the authenticated user with the preference.
         """
         serializer.save(user=self.request.user)
+        Notification.objects.create(
+            user=self.request.user,
+            message=f"Your preference has been created successfully."
+        )
 
     def create(self, request, *args, **kwargs):
         """
@@ -71,6 +75,12 @@ class PreferenceUpdateView(generics.RetrieveUpdateAPIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
+        
+        Notification.objects.create(
+            user=self.request.user,
+            message=f"Your preference has been updated successfully."
+        )
+        
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

@@ -170,3 +170,36 @@ class MessageReceivedView(APIView):
         Notification.objects.create(user = message.sender, message = f"Your message has been read by {request.user.username}.")
         message.save()
         return Response(MessageSerializer(message).data, status=status.HTTP_200_OK)
+    
+
+class MessageOfUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    '''
+    These method is used to get the list of all messages between the user and the other user
+    Accepts:
+        Authentications: user must be authenticated for user1
+        user2: username of the other user
+    Returns:
+        - 200 OK: List of messages between the user and the other user
+        - 403 Forbidden: If the user is not authenticated
+        - 404 Not Found: If the user2 does not exist
+        - 400 Bad Request: If the user2 is the same as the authenticated user
+    '''
+
+    def get(self, request, user2):
+        user1 = request.user
+        user2 = User.objects.get(username=user2)
+
+        if user1 == user2:
+            return Response({"error": "You cannot send a message to yourself."}, status=status.HTTP_400_BAD_REQUEST)
+
+        messages = Message.objects.filter(
+            (Q(sender=user1) & Q(receiver=user2)) | (Q(sender=user2) & Q(receiver=user1))
+        ).order_by('timestamp')
+
+        paginator = PageNumberPagination()
+        paginator.page_size = 10
+        result_page = paginator.paginate_queryset(messages, request)
+        serializer = MessageSerializer(result_page, many=True)
+        return paginator.get_paginated_response(serializer.data)

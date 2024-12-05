@@ -2,11 +2,15 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from .models import Profile
-from .serializers import ProfileSerializer
+
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import generics
 
+
+from .models import Profile
+from .serializers import ProfileSerializer
+
+from notification.models import Notification
 '''
 These ProfileCreateView and ProfileUpdateView are used to create and update the profile of a user.
 
@@ -24,6 +28,10 @@ class ProfileCreateView(generics.CreateAPIView):
         The `user` field is set automatically when saving the profile.
         """
         serializer.save(user=self.request.user)
+        Notification.objects.create(
+            user=self.request.user,
+            message=f"Your profile has been created successfully."
+        )
 
 class ProfileUpdateView(generics.RetrieveUpdateAPIView):
     parser_classes = (MultiPartParser, FormParser)
@@ -47,5 +55,10 @@ class ProfileUpdateView(generics.RetrieveUpdateAPIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
+        
+        Notification.objects.create(
+            user=self.request.user,
+            message=f"Your profile has been updated successfully."
+        )
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
